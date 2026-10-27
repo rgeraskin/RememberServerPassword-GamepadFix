@@ -1,6 +1,6 @@
 # A tag v<version> (the version of package/manifest.json and Plugin.cs) makes a GitHub release with the
 # package and publishes it to Thunderstore (tools/release/publish.cs, settings in tools/release/sites.json).
-# Run by hand, it only checks that Thunderstore would take it (--dry-run).
+# Run by hand (Actions > Release > Run workflow), it only checks that Thunderstore would take it (--dry-run).
 # Secret: THUNDERSTORE_TOKEN (a service account of the team).
 name: Release
 
