@@ -15,7 +15,7 @@ namespace RememberServerPasswordGamepadFix
     {
         public const string Guid = "rgeraskin.valheim.rememberserverpassword.gamepadfix";
         public const string Name = "RememberServerPassword Gamepad Fix";
-        public const string Version = "1.0.0";
+        public const string Version = "0.1.0";
         internal const string TargetGuid = "magicorp.valheim.rememberserverpassword";
 
         internal static Plugin Instance;

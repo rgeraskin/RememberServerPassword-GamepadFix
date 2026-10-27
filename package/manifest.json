@@ -1,6 +1,6 @@
 {
   "name": "RememberServerPassword_GamepadFix",
-  "version_number": "1.0.0",
+  "version_number": "0.1.0",
   "website_url": "https://github.com/rgeraskin/RememberServerPassword-GamepadFix",
   "description": "Temporary fix for MagiCorp's RememberServerPassword: the Quick Connect button can be reached and is highlighted with a gamepad and arrow keys. Until the upstream fix is released.",
   "dependencies": [
