@@ -1,0 +1,66 @@
+# A tag v<version> (the version of package/manifest.json and Plugin.cs) makes a GitHub release with the
+# package and publishes it to Thunderstore (tools/release/publish.cs, settings in tools/release/sites.json).
+# Run by hand, it only checks that Thunderstore would take it (--dry-run).
+# Secret: THUNDERSTORE_TOKEN (a service account of the team).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && '--dry-run' || '' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: package
+          path: dist
+
+      - name: Version
+        id: version
+        run: |
+          version=$(python3 -c 'import json;print(json.load(open("package/manifest.json"))["version_number"])')
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "tag $GITHUB_REF_NAME, but package/manifest.json says $version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Release notes
+        id: notes
+        run: |
+          last=$(git describe --tags --abbrev=0 --match 'v*' HEAD^ 2>/dev/null || echo -)
+          dotnet run tools/release/publish.cs -- notes CHANGELOG.md "${{ steps.version.outputs.version }}" "$last" "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+
+      - name: GitHub release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/RememberServerPassword_GamepadFix-*.zip --title "RememberServerPassword Gamepad Fix ${{ steps.version.outputs.version }}" --notes-file "$RUNNER_TEMP/notes.md"
+
+      - name: Thunderstore
+        env:
+          THUNDERSTORE_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+        run: dotnet run tools/release/publish.cs -- thunderstore dist ${DRY_RUN:+"$DRY_RUN"}

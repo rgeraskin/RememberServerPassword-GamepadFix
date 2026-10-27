@@ -1,0 +1,15 @@
+[tools]
+dotnet = "10"
+
+[env]
+# Steam's Valheim folder (macOS default); edit for Windows/Linux installs (CI passes -p:ValheimDir instead)
+VALHEIM_DIR = "{{env.HOME}}/Library/Application Support/Steam/steamapps/common/Valheim"
+
+[tasks.build]
+description = "Build the plugin"
+run = "dotnet build src/RememberServerPassword_GamepadFix.csproj -c Release"
+
+[tasks.package]
+description = "Make the Thunderstore zip in dist/"
+depends = ["build"]
+run = "tools/package.sh"

@@ -1,0 +1,8 @@
+{
+  "thunderstore": {
+    "url": "https://thunderstore.io",
+    "team": "rgeraskin",
+    "community": "valheim",
+    "categories": ["mods", "client-side", "tweaks"]
+  }
+}

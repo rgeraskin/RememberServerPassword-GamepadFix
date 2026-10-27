@@ -1,0 +1,7 @@
+# build output
+bin/
+obj/
+dist/
+
+.DS_Store
+mise.local.toml

@@ -1,0 +1,53 @@
+# Builds the plugin against the game's assemblies (from the free dedicated server) and BepInEx (Thunderstore)
+# and makes the Thunderstore package. Also the build step of release.yml.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      # the dedicated server updates with the game: fetch it again every week
+      - name: Week
+        id: week
+        run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the game's assemblies and BepInEx
+        id: deps
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/valheim
+          key: deps-${{ steps.week.outputs.week }}-${{ hashFiles('tools/ci/versions.env', 'tools/ci/fetch-deps.sh') }}
+
+      - name: Fetch dependencies
+        run: |
+          # steamcmd is a 32-bit program
+          if [ "${{ steps.deps.outputs.cache-hit }}" != true ]; then sudo apt-get update -q && sudo apt-get install -yq lib32gcc-s1; fi
+          tools/ci/fetch-deps.sh "$RUNNER_TEMP/valheim"
+
+      - name: Build
+        run: dotnet build src/RememberServerPassword_GamepadFix.csproj -c Release -p:ValheimDir="$RUNNER_TEMP/valheim"
+
+      - name: Package
+        run: tools/package.sh
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: dist/RememberServerPassword_GamepadFix-*.zip
+          if-no-files-found: error
