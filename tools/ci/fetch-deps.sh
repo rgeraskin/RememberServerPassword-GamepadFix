@@ -20,8 +20,13 @@ if [ ! -f "$dest/valheim_server_Data/Managed/assembly_valheim.dll" ]; then
     esac
     mkdir -p "$work/steamcmd" && curl -sSL "$url" | tar xz -C "$work/steamcmd"
     server="$work/server"
-    "$work/steamcmd/steamcmd.sh" +@sSteamCmdForcePlatformType linux +force_install_dir "$server" \
-      +login anonymous +app_update "$VALHEIM_SERVER_APP" validate +quit
+    # on a fresh machine steamcmd often fails with "Missing configuration"; the next try goes through
+    for try in 1 2 3; do
+      "$work/steamcmd/steamcmd.sh" +@sSteamCmdForcePlatformType linux +force_install_dir "$server" \
+        +login anonymous +app_update "$VALHEIM_SERVER_APP" validate +quit && break
+      [ "$try" = 3 ] && exit 1
+      echo "steamcmd failed (try $try), retrying" >&2
+    done
   fi
   mkdir -p "$dest/valheim_server_Data"
   rm -rf "$dest/valheim_server_Data/Managed"
