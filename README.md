@@ -21,6 +21,10 @@ The log line `Linked Quick Connect into menu navigation: …` in `BepInEx/LogOut
 
 Valheim's main menu buttons form an explicit up/down navigation chain, and the game keeps its own list of the menu buttons for the arrow keys, made before any mod runs. RememberServerPassword clones a menu button for Quick Connect, but neither the chain nor the list knows about the clone, so navigation skips it. It also replaces the clone's `Button` component with a fresh one and doesn't copy its animation triggers, which is what draws the highlight.
 
+## Bugs and ideas
+
+Found a bug or have an idea? Tell me on the [GitHub issues page](https://github.com/rgeraskin/RememberServerPassword-GamepadFix/issues) or in the chat for my mods, on [Discord](https://discord.gg/hxpuTQF2Bb) or [Telegram](https://t.me/+NwReoOS9x7hhYjgy).
+
 ## Credits
 
 The icon is RememberServerPassword's own (MIT, © 2026 MagiCorp) with a gamepad badge. The source code is on [GitHub](https://github.com/rgeraskin/RememberServerPassword-GamepadFix) (MIT).
